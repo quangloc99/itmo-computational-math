@@ -9,7 +9,8 @@ public class App {
         new App(argInputProvider);
     }
 
-    Map<String, Command> commands = new HashMap<>();
+    boolean usingInteractive = false;
+    Map<String, Command> commands = new LinkedHashMap<>();
     Deque<Scanner> userInputProviderQueue = new LinkedList<>();
 
     public App(Scanner ...inputProviders) {
@@ -48,11 +49,20 @@ public class App {
     }
 
     void initCommands() {
-        commands.put("hello-world", new Command("Print hello world", () -> {
-            System.out.println("Hello world");
+        commands.put("help", new Command("Print this message", () -> {
+            commands.forEach((commandName, command) -> {
+                System.out.printf("\t-%-15s - %s\n", commandName, command.getUsage());
+            });
         }));
-        commands.put("i", new Command("Enter interactive mode", () -> {
+        commands.put("hello-world", new Command("Print hello world, just for testing :))", () -> System.out.println("Hello world")));
+        commands.put("i", new Command("Enter interactive mode.", () -> {
+            if (usingInteractive) {
+                System.err.println("You are already in the interactive mode.");
+                return ;
+            }
             userInputProviderQueue.addFirst(new Scanner(System.in).useDelimiter(delimiterRegex));
+            usingInteractive = true;
         }));
+        commands.put("exit", new Command("Wonder what does this command do???", () -> System.exit(0)));
     }
 }
