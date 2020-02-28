@@ -2,6 +2,8 @@ package ru.ifmo.se.s267880.computationalMath.math;
 
 import org.jetbrains.annotations.NotNull;
 
+import static ru.ifmo.se.s267880.computationalMath.math.MathUtils.areAlmostEqual;
+
 public class Matrix {
     private Vector[] data;
 
@@ -27,6 +29,24 @@ public class Matrix {
 
     // TODO: add basic operations like "add", "subtract", "scale", ...
     //       I currently don't add them since the 1st lab does not require.
+
+    public boolean isDiagonallyDominant() {
+        return isDiagonallyDominant(false);
+    }
+
+    public boolean isDiagonallyDominant(boolean strict) {
+        for (int r = 0; r < getRowCount(); ++r) {
+            double sum = 0;
+            for (int c = 0; c < getColumnCount(); ++c) {
+                sum += get(r, c);
+            }
+            sum -= 2 * get(r, r);
+            if (sum > 0 || (strict && areAlmostEqual(sum,0))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public int getRowCount() {
         return data.length;
