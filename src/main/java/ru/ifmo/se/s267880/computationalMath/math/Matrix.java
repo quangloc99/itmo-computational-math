@@ -16,6 +16,13 @@ public class Matrix {
         }
     }
 
+    public Matrix(Vector ...data) {
+        this.data = new Vector[data.length];
+        for (int r = 0; r < data.length; ++r) {
+            this.data[r] = data[r].copy();
+        }
+    }
+
     public Matrix(@NotNull Matrix other) {
         data = new Vector[other.getRowCount()];
         for (int r = 0; r < getRowCount(); ++r) {
@@ -38,9 +45,9 @@ public class Matrix {
         for (int r = 0; r < getRowCount(); ++r) {
             double sum = 0;
             for (int c = 0; c < getColumnCount(); ++c) {
-                sum += get(r, c);
+                sum += Math.abs(get(r, c));
             }
-            sum -= 2 * get(r, r);
+            sum -= 2 * Math.abs(get(r, r));
             if (sum > 0 || (strict && areAlmostEqual(sum,0))) {
                 return false;
             }

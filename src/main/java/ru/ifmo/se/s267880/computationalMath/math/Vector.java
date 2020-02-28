@@ -3,11 +3,18 @@ package ru.ifmo.se.s267880.computationalMath.math;
 import org.jetbrains.annotations.NotNull;
 import ru.ifmo.se.s267880.computationalMath.math.exceptions.MathException;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 public class Vector {
     private double[] data;
 
     public Vector(int size) {
         data = new double[size];
+    }
+
+    public Vector(double ...data) {
+        this.data = Arrays.copyOf(data, data.length);
     }
 
     public Vector(@NotNull Vector other) {
@@ -55,5 +62,9 @@ public class Vector {
     @Override
     public String toString() {
         return String.format("Vector(size = %d)", getSize());
+    }
+
+    public String getDataAsString() {
+        return Arrays.stream(data).mapToObj(Double::toString).collect(Collectors.joining(", "));
     }
 }
