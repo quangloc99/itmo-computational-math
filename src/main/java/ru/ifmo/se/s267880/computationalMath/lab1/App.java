@@ -15,6 +15,9 @@ import java.util.stream.IntStream;
 public class App {
     public static final String delimiterRegex = "[\\s;,]+";
     public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("Use the flag -help.");
+        }
         Scanner argInputProvider = new Scanner(String.join(" ", args)).useDelimiter(delimiterRegex);
         new App(argInputProvider);
     }
@@ -112,6 +115,30 @@ public class App {
 
     void initCommands() {
         commands.put("help", new Command("Print this message", () -> {
+            System.out.println("# About");
+            System.out.println(
+                    "This is a program that calculate the solution for system of linear equations using\n" +
+                    "Guass-Seidel method. It is DESIGNED to use with command line, but you can also\n" +
+                    "use it with input from your keyboard using -i flag (interactive mode), or use with file, \n" +
+                    "using -run-file command. Basically, flag and command for interactive mode in this program\n" +
+                    "are the same. For example, if you use flag `-set-cell 2 2 3.5`, then you can do the same thing\n" +
+                    "in the terminal with the following:\n" +
+                    "\t\t-set-cell 2 2 3.5\n" +
+                    "For nicer syntax, this program also treat commans (',') and semi-colon (';') as white space. So\n" +
+                    "the above can also be done with:\n" +
+                    "\t\t-set-cell 2,3; 3.5\n" +
+                    "Or even nicer with longer command. For example if you want to change the content of the 2nd row\n"+
+                    "of the coefficient matrix to 1, 2, 3, 4, 5, 6 respectively, then you can do it with:\n" +
+                    "\t\t-set-row 2;\n" +
+                    "\t\t1, 2, 3, 4, 5, 6" +
+                    "\n" +
+                    "For running the file, you can write the list of commands into a file the same way as if you write it within\n" +
+                    "the terminal.\n" +
+                    "\n"+
+                    "Also small note that all index here start from zero"
+            );
+
+            System.out.println("# Commands/flags list:");
             commands.forEach((commandName, command) -> {
                 System.out.printf("\t-%-40s - %s\n", commandName + " " + command.getArgumentDescription(), command.getUsage());
             });
@@ -167,7 +194,7 @@ public class App {
         ));
 
         commands.put("set-cell", new Command(
-                "Set the cell of coefficient matrix at r, c (0-indexed) to be value. Value can be real number",
+                "Set the cell of coefficient matrix at r, c to be value. Value can be real number",
                 "{r} {c} {value}",
                 () -> {
                     coefficientMatrix.set(readInt(), readInt(), readDouble());
@@ -248,7 +275,7 @@ public class App {
             accuracy = Math.abs(readDouble());
         }));
 
-        commands.put("set-shuffle-limit", new Command("Set the shuffle limit. Non-positive number for Infinity", "{double}", () -> {
+        commands.put("set-shuffle-limit", new Command("Set the shuffle limit. Non-positive number for Infinity", "{int}", () -> {
             solver = null;
             shuffleLimit = readInt();
             if (shuffleLimit <= 0) shuffleLimit = -1;
@@ -258,7 +285,7 @@ public class App {
             printIteration = !printIteration;
         }));
 
-        commands.put("solve", new Command("Solve the equation", () -> {
+        commands.put("solve", new Command("Solve the equation. This is used in interactive mode. However, this command is also automatically called after the you are done with interactive mode.", () -> {
             try {
                 solver = new GuassSeidelMethod(coefficientMatrix, constantTerms, accuracy, shuffleLimit);
                 numberOfIterations = 0;
