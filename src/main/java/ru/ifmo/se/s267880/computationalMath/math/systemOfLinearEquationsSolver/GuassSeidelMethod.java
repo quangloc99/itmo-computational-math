@@ -63,7 +63,7 @@ public class GuassSeidelMethod {
                     for (int i = 0; i < getUnknownCount(); ++i) {
                         double previousNewProduct = MathUtils.partialDotProduct(currentX, shuffledCoefficients.getRow(i), 0, i);
                         double nextOldProduct = MathUtils.partialDotProduct(currentX, shuffledCoefficients.getRow(i), i + 1, getUnknownCount());
-                        currentX.set(i, (constantTerms.get(i) - previousNewProduct - nextOldProduct) / coefficients.get(i, i));
+                        currentX.set(i, (constantTerms.get(i) - previousNewProduct - nextOldProduct) / shuffledCoefficients.get(i, i));
                     }
                     Vector result = shuffleWithOrder(currentX, reverseShuffleOrder);
                     maxError = getErrorColumn(result).getMaximumNorm();

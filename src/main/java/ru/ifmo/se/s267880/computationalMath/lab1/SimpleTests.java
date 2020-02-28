@@ -6,8 +6,12 @@ import ru.ifmo.se.s267880.computationalMath.math.exceptions.MathException;
 import ru.ifmo.se.s267880.computationalMath.math.systemOfLinearEquationsSolver.GuassSeidelMethod;
 
 import javax.naming.LimitExceededException;
-import java.util.function.DoubleToIntFunction;
 
+/**
+ * @author Tran Quang Loc
+ * These test are just quick test got from Wikipedia: https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method
+ * Doing full unit test in my opinion is not really necessary in the lab's scope.
+ */
 public class SimpleTests {
     static void solveAndPrint(Matrix coef, Vector constants, Vector initX)
             throws MathException, LimitExceededException

@@ -19,12 +19,13 @@ public class MathUtils {
      * @return true if there is a new permutation, and false otherwise.
      */
     public static boolean nextPermutation(int[] permutation) {
-        int firstDecreasingPos = permutation.length - 1;
-        while (firstDecreasingPos > 0 && permutation[firstDecreasingPos - 1] > permutation[firstDecreasingPos]) {
+        if (permutation.length == 1) return false;
+        int firstDecreasingPos = permutation.length - 2;
+        while (firstDecreasingPos >= 0 && permutation[firstDecreasingPos] > permutation[firstDecreasingPos + 1]) {
             --firstDecreasingPos;
         }
 
-        if (firstDecreasingPos == 0) return false;
+        if (firstDecreasingPos < 0) return false;
         int firstSmaller = firstDecreasingPos + 1;
         while (firstSmaller < permutation.length && permutation[firstSmaller] > permutation[firstDecreasingPos]) {
             ++firstSmaller;
