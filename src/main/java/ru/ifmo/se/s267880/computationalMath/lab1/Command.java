@@ -7,10 +7,17 @@ public class Command {
     }
 
     private String usage;
+    private String argumentDescription = "";
     private Handler handler;
 
     public Command(String usage, Handler handler) {
         this.usage = usage;
+        this.handler = handler;
+    }
+
+    public Command(String usage, String argumentDescription, Handler handler) {
+        this.usage = usage;
+        this.argumentDescription = argumentDescription;
         this.handler = handler;
     }
 
@@ -20,5 +27,9 @@ public class Command {
 
     public String getUsage() {
         return usage;
+    }
+
+    public String getArgumentDescription() {
+        return argumentDescription;
     }
 }

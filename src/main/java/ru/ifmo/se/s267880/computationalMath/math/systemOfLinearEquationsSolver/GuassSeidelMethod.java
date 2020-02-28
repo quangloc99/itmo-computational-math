@@ -131,4 +131,12 @@ public class GuassSeidelMethod {
     public int getUnknownCount() {
         return coefficients.getColumnCount();
     }
+
+    public double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(double accuracy) {
+        this.accuracy = accuracy;
+    }
 }

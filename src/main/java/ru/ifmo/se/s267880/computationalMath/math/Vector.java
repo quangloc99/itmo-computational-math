@@ -5,6 +5,7 @@ import ru.ifmo.se.s267880.computationalMath.math.exceptions.MathException;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 public class Vector {
     private double[] data;
@@ -65,6 +66,10 @@ public class Vector {
     }
 
     public String getDataAsString() {
-        return Arrays.stream(data).mapToObj(Double::toString).collect(Collectors.joining(", "));
+        return Arrays.stream(data).mapToObj(it -> String.format("%.3f", it)).collect(Collectors.joining(", "));
+    }
+
+    public DoubleStream streamData() {
+        return Arrays.stream(data);
     }
 }
