@@ -6,6 +6,8 @@ import ru.ifmo.se.s267880.computationalMath.math.Vector;
 import ru.ifmo.se.s267880.computationalMath.math.systemOfLinearEquationsSolver.GuassSeidelMethod;
 
 import javax.naming.LimitExceededException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -24,12 +26,12 @@ public class App {
         loop();
     }
 
-    // Datas for interactive apps
+    // Data for interactive apps
     boolean usingInteractive = false;
     Map<String, Command> commands = new LinkedHashMap<>();
     Deque<Scanner> userInputProviderQueue = new LinkedList<>();
 
-    // Datas for solving system of linear equations.
+    // Data for solving system of linear equations.
     boolean printIteration = false;
     int n;
     double accuracy = MathUtils.EPS;
@@ -257,6 +259,15 @@ public class App {
                 throw new Exception("Cannot find a permutation for diagonally dominant matrix after " + shuffleLimit + " times shuffling. " +
                         "You can set the shuffle limit to be higher if you can wait :)))");
             }
+        }));
+
+        commands.put("run-file", new Command("Run all commands written the file. Note that due to simplicity, the file-name will be trim", "{file-name}", () -> {
+            String fileName = getCurrentInputProvider().nextLine().trim();
+            File file = new File(fileName);
+            if (!file.exists()) {
+                throw new Exception("File " + fileName + " does not exist.");
+            }
+            userInputProviderQueue.add(new Scanner(new FileInputStream(file)).useDelimiter(delimiterRegex));
         }));
     }
 }
