@@ -1,6 +1,7 @@
 package ru.ifmo.se.s267880.computationalMath.math;
 
 import org.jetbrains.annotations.NotNull;
+import ru.ifmo.se.s267880.computationalMath.math.exceptions.MathException;
 
 public class Vector {
     private double[] data;
@@ -18,8 +19,26 @@ public class Vector {
         return new Vector(this);
     }
 
-    // TODO: basic operation like add, subtract, scale
+    public Vector subtract(@NotNull  Vector other) throws MathException  {
+        if (getSize() != other.getSize()) {
+            throw new MathException(String.format("%s must has same size as %s", other, this));
+        }
+        for (int i = 0; i < getSize(); ++i) {
+            data[i] -= other.data[i];
+        }
+        return this;
+    }
+
+    // TODO: basic some more operations like add, scale
     //       I currently don't add them since the 1st lab does not require.
+
+    public double getMaximumNorm() {
+        double result = 0;
+        for (int i = 0; i < getSize(); ++i) {
+            result = Math.max(result, Math.abs(data[i]));
+        }
+        return result;
+    }
 
     public int getSize() {
         return data.length;
