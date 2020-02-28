@@ -3,10 +3,9 @@ package ru.ifmo.se.s267880.computationalMath.lab1;
 import ru.ifmo.se.s267880.computationalMath.math.MathUtils;
 import ru.ifmo.se.s267880.computationalMath.math.Matrix;
 import ru.ifmo.se.s267880.computationalMath.math.Vector;
-import ru.ifmo.se.s267880.computationalMath.math.exceptions.MathException;
 import ru.ifmo.se.s267880.computationalMath.math.systemOfLinearEquationsSolver.GuassSeidelMethod;
 
-import java.text.ParseException;
+import javax.naming.LimitExceededException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,8 +38,12 @@ public class App {
     Vector constantTerms;
     Vector solution;
     GuassSeidelMethod solver;
+    int numberOfIterations = 0;
 
     void setN(int n) {
+        if (n <= 0) {
+            throw new RuntimeException("n must be positive");
+        }
         this.n = n;
         coefficientMatrix = new Matrix(n, n);
         constantTerms = new Vector(n);
@@ -77,6 +80,24 @@ public class App {
         return userInputProviderQueue.getLast();
     }
 
+    int readInt() throws Exception {
+        try {
+            String num = getCurrentInputProvider().next();
+            return Integer.parseInt(num);
+        } catch (NumberFormatException e) {
+            throw new Exception("Expecting number");
+        }
+    }
+
+    double readDouble() throws Exception {
+        try {
+            String num = getCurrentInputProvider().next();
+            return Double.parseDouble(num);
+        } catch (NumberFormatException e) {
+            throw new Exception("Expecting number");
+        }
+    }
+
     void initCommands() {
         commands.put("help", new Command("Print this message", () -> {
             commands.forEach((commandName, command) -> {
@@ -95,60 +116,47 @@ public class App {
         );
         commands.put("exit", new Command("Wonder what does this command do???", () -> System.exit(0)));
 
-        commands.put("set-n", new Command(
-                "Set the number of rows/columns/unknowns. Note that the data will be ERASED. Default is 3.",
-                "{int}",
-                () -> {
-                    try {
-                        String val = getCurrentInputProvider().next();
-                        setN(Integer.parseInt(val));
-                    } catch (NumberFormatException e) {
-                        throw new Exception("Expecting an integer.", e);
-                    }
-                }
-        ));
-
         commands.put("summary", new Command("Print summary (the current state of the program)", () -> {
             System.out.printf("\tNumber of rows/columns/unknowns: %d\n", n);
-            System.out.printf("\tAccuracy: %f\n", accuracy);
+            System.out.printf("\tAccuracy: %.20f\n", accuracy);
             System.out.printf("\tShuffle limit: %s\n", shuffleLimit == -1 ? "Infinity" : shuffleLimit);
+            System.out.printf("\tPrinting iteration: %s\n", printIteration ? "Yes" : "No");
             System.out.println("\tSystem of equations:");
             for (int r = 0; r < n; ++r) {
                 System.out.print("\t\t");
                 PrimitiveIterator.OfInt columnIter = IntStream.range(1, n + 1).iterator();
                 System.out.print(coefficientMatrix.getRow(r).streamData()
-                        .mapToObj(it -> String.format("%.3fx%d", it, columnIter.next()))
+                        .mapToObj(it -> String.format("%11.5fx%d", it, columnIter.next()))
                         .collect(Collectors.joining(" + "))
                 );
 
-                System.out.printf(" = %.3f\n", constantTerms.get(r));
+                System.out.printf(" = %11.5f\n", constantTerms.get(r));
             }
 
             System.out.println("\tCurrent solution: ");
             System.out.println("\t\t" + solution.getDataAsString());
-            System.out.println("\tError column:");
             if (solver == null) {
+                System.out.println("\tError column:");
                 System.out.println("\t\t" + "Unavailable (use -solve command)");
             } else {
+                System.out.println("\tError column:");
                 System.out.println("\t\t" + solver.getErrorColumn(solution).getDataAsString());
+                System.out.printf("\tNumber of iterations: %d\n", numberOfIterations);
             }
         }));
+
+        commands.put("set-n", new Command(
+                "Set the number of rows/columns/unknowns. Note that the data will be ERASED. Default is 3.",
+                "{int}",
+                () -> setN(readInt())
+        ));
 
         commands.put("set-cell", new Command(
                 "Set the cell of coefficient matrix at r, c (0-indexed) to be value. Value can be real number",
                 "{r} {c} {value}",
                 () -> {
-                    try {
-                        String rString = getCurrentInputProvider().next();
-                        String cString = getCurrentInputProvider().next();
-                        String valueString = getCurrentInputProvider().next();
-                        coefficientMatrix.set(Integer.parseInt(rString), Integer.parseInt(cString), Double.parseDouble(valueString));
-                        solver = null;
-                    } catch (NumberFormatException e) {
-                        throw new Exception("Malformed number");
-                    } catch (IndexOutOfBoundsException e) {
-                        throw new Exception("Index out of bound");
-                    }
+                    coefficientMatrix.set(readInt(), readInt(), readDouble());
+                    solver = null;
                 }
         ));
 
@@ -156,17 +164,13 @@ public class App {
                 "Set all cell of the i-th row. Exactly n + 1 numbers will be read", "{i} {double} {double} ...",
                 () -> {
                     try {
-                        String iString = getCurrentInputProvider().next();
-                        String[] args = new String[n];
+                        solver = null;
+                        int r = readInt();
                         for (int c = 0; c < n; ++c) {
-                            args[c] = getCurrentInputProvider().next();
+                            coefficientMatrix.set(r, c, readDouble());
                         }
-                        int i = Integer.parseInt(iString);
-                        for (int c = 0; c < n; ++c) {
-                            coefficientMatrix.set(i, c, Double.parseDouble(args[c]));
-                        }
-                    } catch (NumberFormatException e) {
-                        throw new Exception("Expected numbers");
+                    } catch (IndexOutOfBoundsException e) {
+                        throw new Exception("Index out of bound", e);
                     }
                 }
         ));
@@ -175,12 +179,9 @@ public class App {
                 "Set the i-th constant term (free member) to be value. Used for setting the initial value for iteration.", "{i} {value}",
                 () -> {
                     try {
-                        String iString = getCurrentInputProvider().next();
-                        String valueString = getCurrentInputProvider().next();
-                        constantTerms.set(Integer.parseInt(iString), Double.parseDouble(valueString));
                         solver = null;
-                    } catch (NumberFormatException e) {
-                        throw new Exception("Malformed number");
+                        constantTerms.set(readInt(), readDouble());
+                        solver = null;
                     } catch (IndexOutOfBoundsException e) {
                         throw new Exception("Index out of bound");
                     }
@@ -190,16 +191,9 @@ public class App {
         commands.put("set-all-constants", new Command(
                 "Set all constant terms (free members). Exactly n numbers will be read", "{double} {double} ...",
                 () -> {
-                    try {
-                        String[] args = new String[n];
-                        for (int i = 0; i < n; ++i) {
-                            args[i] = getCurrentInputProvider().next();
-                        }
-                        for (int i = 0; i < n; ++i) {
-                            constantTerms.set(i, Double.parseDouble(args[i]));
-                        }
-                    } catch (NumberFormatException e) {
-                        throw new Exception("Expected numbers");
+                    solver = null;
+                    for (int i = 0; i < n; ++i) {
+                        constantTerms.set(i, readDouble());
                     }
                 }
         ));
@@ -208,12 +202,9 @@ public class App {
             "Set the i-th member of solution to be value", "{i} {value}",
                 () -> {
                     try {
-                        String iString = getCurrentInputProvider().next();
-                        String valueString = getCurrentInputProvider().next();
-                        solution.set(Integer.parseInt(iString), Double.parseDouble(valueString));
                         solver = null;
-                    } catch (NumberFormatException e) {
-                        throw new Exception("Malformed number");
+                        solution.set(readInt(), readDouble());
+                        solver = null;
                     } catch (IndexOutOfBoundsException e) {
                         throw new Exception("Index out of bound");
                     }
@@ -221,6 +212,7 @@ public class App {
         ));
 
         commands.put("randomize-solution", new Command("Set randomized solution.", () -> {
+            solver = null;
             for (int i = 0; i < n; ++i) {
                 solution.set(i, Math.random() * 1000);
             }
@@ -229,18 +221,42 @@ public class App {
         commands.put("set-all-solutions", new Command("Set all number in the solution. Exactly n numbers after this will be read",
                 "{double} {double} ...",
                 () -> {
-                    try {
-                        String[] args = new String[n];
-                        for (int i = 0; i < n; ++i) {
-                            args[i] = getCurrentInputProvider().next();
-                        }
-                        for (int i = 0; i < n; ++i) {
-                            solution.set(i, Double.parseDouble(args[i]));
-                        }
-                    } catch (NumberFormatException e) {
-                        throw new Exception("Expected numbers");
+                    solver = null;
+                    for (int i = 0; i < n; ++i) {
+                        solution.set(i, readDouble());
                     }
                 }
         ));
+
+        commands.put("set-accuracy", new Command("Set accuracy", "{double}", () -> {
+            solver = null;
+            accuracy = Math.abs(readDouble());
+        }));
+
+        commands.put("set-shuffle-limit", new Command("Set the shuffle limit. Non-positive number for Infinity", "{double}", () -> {
+            solver = null;
+            shuffleLimit = readInt();
+            if (shuffleLimit <= 0) shuffleLimit = -1;
+        }));
+
+        commands.put("toggle-printing-iteration", new Command("Toggle the printing iteration options", () -> {
+            printIteration = !printIteration;
+        }));
+
+        commands.put("solve", new Command("Solve the equation", () -> {
+            try {
+                solver = new GuassSeidelMethod(coefficientMatrix, constantTerms, accuracy, shuffleLimit);
+                numberOfIterations = 0;
+                for (Vector newSol: solver.solve(solution)) {
+                    solution = newSol;
+                    ++numberOfIterations;
+                    if (!printIteration) continue;
+                    System.out.printf("Iteration %d:\t%s\n", numberOfIterations, solution.getDataAsString());
+                }
+            } catch (LimitExceededException e) {
+                throw new Exception("Cannot find a permutation for diagonally dominant matrix after " + shuffleLimit + " times shuffling. " +
+                        "You can set the shuffle limit to be higher if you can wait :)))");
+            }
+        }));
     }
 }

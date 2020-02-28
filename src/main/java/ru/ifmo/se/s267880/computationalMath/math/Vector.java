@@ -66,7 +66,7 @@ public class Vector {
     }
 
     public String getDataAsString() {
-        return Arrays.stream(data).mapToObj(it -> String.format("%.3f", it)).collect(Collectors.joining(", "));
+        return Arrays.stream(data).mapToObj(it -> String.format("%11.5f", it)).collect(Collectors.joining(", "));
     }
 
     public DoubleStream streamData() {
