@@ -153,7 +153,7 @@ public class App {
         ));
 
         commands.put("set-row", new Command(
-                "Set all cell of the i-th row. Exactly n + 1 number will be read", "{i} {double} {double} ...",
+                "Set all cell of the i-th row. Exactly n + 1 numbers will be read", "{i} {double} {double} ...",
                 () -> {
                     try {
                         String iString = getCurrentInputProvider().next();
@@ -188,7 +188,7 @@ public class App {
         ));
 
         commands.put("set-all-constants", new Command(
-                "Set all constant terms (free members). Exactly n number will be read", "{double} {double} ...",
+                "Set all constant terms (free members). Exactly n numbers will be read", "{double} {double} ...",
                 () -> {
                     try {
                         String[] args = new String[n];
@@ -226,7 +226,7 @@ public class App {
             }
         }));
 
-        commands.put("set-all-solutions", new Command("Set all number in the solution. Exactly n number after this will be read",
+        commands.put("set-all-solutions", new Command("Set all number in the solution. Exactly n numbers after this will be read",
                 "{double} {double} ...",
                 () -> {
                     try {
