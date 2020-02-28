@@ -24,6 +24,7 @@ public class App {
         initCommands();
         setN(3);
         loop();
+        afterLoop();
     }
 
     // Data for interactive apps
@@ -78,6 +79,15 @@ public class App {
         }
     }
 
+    void afterLoop() {
+        try {
+            commands.get("solve").process();
+            commands.get("result-summary").process();
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
     Scanner getCurrentInputProvider() {
         return userInputProviderQueue.getLast();
     }
@@ -116,7 +126,7 @@ public class App {
         commands.put("hello-world", new Command("Print hello world, just for testing :))", () ->
                 System.out.println("Hello world"))
         );
-        commands.put("exit", new Command("Wonder what does this command do???", () -> System.exit(0)));
+        commands.put("exit", new Command("Wonder what does this command do???", () -> userInputProviderQueue.removeLast()));
 
         commands.put("summary", new Command("Print summary (the current state of the program)", () -> {
             System.out.printf("\tNumber of rows/columns/unknowns: %d\n", n);
@@ -134,7 +144,10 @@ public class App {
 
                 System.out.printf(" = %11.5f\n", constantTerms.get(r));
             }
+            commands.get("result-summary").process();
+        }));
 
+        commands.put("result-summary", new Command("Print only summary about the result", () -> {
             System.out.println("\tCurrent solution: ");
             System.out.println("\t\t" + solution.getDataAsString());
             if (solver == null) {
