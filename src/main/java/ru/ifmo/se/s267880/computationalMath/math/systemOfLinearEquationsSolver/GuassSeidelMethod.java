@@ -59,15 +59,15 @@ public class GuassSeidelMethod {
 
             @Override
             public Vector next() {
+                Vector previousX = currentX.copy();
                 try {
                     for (int i = 0; i < getUnknownCount(); ++i) {
                         double previousNewProduct = MathUtils.partialDotProduct(currentX, shuffledCoefficients.getRow(i), 0, i);
                         double nextOldProduct = MathUtils.partialDotProduct(currentX, shuffledCoefficients.getRow(i), i + 1, getUnknownCount());
                         currentX.set(i, (constantTerms.get(i) - previousNewProduct - nextOldProduct) / shuffledCoefficients.get(i, i));
                     }
-                    Vector result = shuffleWithOrder(currentX, reverseShuffleOrder);
-                    maxError = getErrorColumn(result).getMaximumNorm();
-                    return result;
+                    maxError = previousX.subtract(currentX).getMaximumNorm();
+                    return shuffleWithOrder(currentX, reverseShuffleOrder);
                 } catch (MathException e) {
                     // Currently every MathException here are just size checking, which are done beforehand.
                     // Therefore if there is such exception, then definitely there is something wrong.
