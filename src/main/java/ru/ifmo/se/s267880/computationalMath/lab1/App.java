@@ -3,7 +3,7 @@ package ru.ifmo.se.s267880.computationalMath.lab1;
 import ru.ifmo.se.s267880.computationalMath.math.MathUtils;
 import ru.ifmo.se.s267880.computationalMath.math.Matrix;
 import ru.ifmo.se.s267880.computationalMath.math.Vector;
-import ru.ifmo.se.s267880.computationalMath.math.systemOfLinearEquationsSolver.GuassSeidelMethod;
+import ru.ifmo.se.s267880.computationalMath.math.systemOfLinearEquationsSolver.GaussSeidelMethod;
 
 import javax.naming.LimitExceededException;
 import java.io.File;
@@ -43,7 +43,7 @@ public class App {
     Matrix coefficientMatrix;
     Vector constantTerms;
     Vector solution;
-    GuassSeidelMethod solver;
+    GaussSeidelMethod solver;
     int numberOfIterations = 0;
 
     void setN(int n) {
@@ -287,7 +287,7 @@ public class App {
 
         commands.put("solve", new Command("Solve the equation. This is used in interactive mode. However, this command is also automatically called after the you are done with interactive mode.", () -> {
             try {
-                solver = new GuassSeidelMethod(coefficientMatrix, constantTerms, accuracy, shuffleLimit);
+                solver = new GaussSeidelMethod(coefficientMatrix, constantTerms, accuracy, shuffleLimit);
                 numberOfIterations = 0;
                 for (Vector newSol: solver.solve(solution)) {
                     solution = newSol;

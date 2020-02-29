@@ -9,7 +9,7 @@ import ru.ifmo.se.s267880.computationalMath.math.exceptions.MathException;
 import javax.naming.LimitExceededException;
 import java.util.Iterator;
 
-public class GuassSeidelMethod {
+public class GaussSeidelMethod {
     private Matrix coefficients;
     private Matrix shuffledCoefficients;
 
@@ -19,19 +19,19 @@ public class GuassSeidelMethod {
     private int[] shuffleOrder;
     private int[] reverseShuffleOrder;
 
-    public GuassSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms, double accuracy)
+    public GaussSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms, double accuracy)
             throws MathException, LimitExceededException
     {
         this(coefficients, constantTerms, accuracy, -1);
     }
 
-    public GuassSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms)
+    public GaussSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms)
             throws MathException, LimitExceededException
     {
         this(coefficients, constantTerms, MathUtils.EPS, -1);
     }
 
-    public GuassSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms, double accuracy, int limitShuffle)
+    public GaussSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms, double accuracy, int limitShuffle)
             throws MathException, LimitExceededException
     {
         assert(coefficients.getRowCount() == constantTerms.getSize());

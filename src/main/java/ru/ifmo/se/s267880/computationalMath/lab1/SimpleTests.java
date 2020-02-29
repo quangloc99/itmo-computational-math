@@ -3,7 +3,7 @@ package ru.ifmo.se.s267880.computationalMath.lab1;
 import ru.ifmo.se.s267880.computationalMath.math.Matrix;
 import ru.ifmo.se.s267880.computationalMath.math.Vector;
 import ru.ifmo.se.s267880.computationalMath.math.exceptions.MathException;
-import ru.ifmo.se.s267880.computationalMath.math.systemOfLinearEquationsSolver.GuassSeidelMethod;
+import ru.ifmo.se.s267880.computationalMath.math.systemOfLinearEquationsSolver.GaussSeidelMethod;
 
 import javax.naming.LimitExceededException;
 
@@ -17,7 +17,7 @@ public class SimpleTests {
             throws MathException, LimitExceededException
     {
         int i = 0;
-        for (Vector x: new GuassSeidelMethod(coef, constants, 1e-10).solve(initX)) {
+        for (Vector x: new GaussSeidelMethod(coef, constants, 1e-10).solve(initX)) {
             System.out.printf("Iteration %d: %s\n", i++, x.getDataAsString());
         }
     }
