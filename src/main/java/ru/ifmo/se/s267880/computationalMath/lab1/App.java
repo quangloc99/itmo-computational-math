@@ -149,6 +149,7 @@ public class App {
             }
             userInputProviderQueue.addFirst(new Scanner(System.in).useDelimiter(delimiterRegex));
             usingInteractive = true;
+            System.out.println("You are now in interactive mode. Use command -help for more details.");
         }));
         commands.put("hello-world", new Command("Print hello world, just for testing :))", () ->
                 System.out.println("Hello world"))
