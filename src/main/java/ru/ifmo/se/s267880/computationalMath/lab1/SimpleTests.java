@@ -14,7 +14,7 @@ import javax.naming.LimitExceededException;
  */
 public class SimpleTests {
     static void solveAndPrint(Matrix coef, Vector constants, Vector initX)
-            throws MathException, LimitExceededException
+            throws MathException
     {
         int i = 0;
         for (Vector x: new GaussSeidelMethod(coef, constants, 1e-10).solve(initX)) {
@@ -65,8 +65,6 @@ public class SimpleTests {
             ), new Vector(11, 13), new Vector(1, 1));
         } catch (MathException e) {
             e.printStackTrace();
-        } catch (LimitExceededException e) {
-            System.out.println(e);;
         }
     }
 }

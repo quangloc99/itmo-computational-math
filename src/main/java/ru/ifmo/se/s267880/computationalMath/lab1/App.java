@@ -39,7 +39,6 @@ public class App {
     boolean printIteration = false;
     int n;
     double accuracy = MathUtils.EPS;
-    int shuffleLimit = -1;
     Matrix coefficientMatrix;
     Vector constantTerms;
     Vector solution;
@@ -139,9 +138,9 @@ public class App {
             );
 
             System.out.println("# Commands/flags list:");
-            commands.forEach((commandName, command) -> {
-                System.out.printf("\t-%-40s - %s\n", commandName + " " + command.getArgumentDescription(), command.getUsage());
-            });
+            commands.forEach((commandName, command) ->
+                System.out.printf("\t-%-40s - %s\n", commandName + " " + command.getArgumentDescription(), command.getUsage())
+            );
         }));
         commands.put("i", new Command("Enter interactive mode.", () -> {
             if (usingInteractive) {
@@ -159,7 +158,6 @@ public class App {
         commands.put("summary", new Command("Print summary (the current state of the program)", () -> {
             System.out.printf("\tNumber of rows/columns/unknowns: %d\n", n);
             System.out.printf("\tAccuracy: %.20f\n", accuracy);
-            System.out.printf("\tShuffle limit: %s\n", shuffleLimit == -1 ? "Infinity" : shuffleLimit);
             System.out.printf("\tPrinting iteration: %s\n", printIteration ? "Yes" : "No");
             System.out.println("\tSystem of equations:");
             for (int r = 0; r < n; ++r) {
@@ -276,29 +274,18 @@ public class App {
             accuracy = Math.abs(readDouble());
         }));
 
-        commands.put("set-shuffle-limit", new Command("Set the shuffle limit. Non-positive number for Infinity", "{int}", () -> {
-            solver = null;
-            shuffleLimit = readInt();
-            if (shuffleLimit <= 0) shuffleLimit = -1;
-        }));
-
-        commands.put("toggle-printing-iteration", new Command("Toggle the printing iteration options", () -> {
-            printIteration = !printIteration;
-        }));
+        commands.put("toggle-printing-iteration", new Command("Toggle the printing iteration options", () ->
+                printIteration = !printIteration
+        ));
 
         commands.put("solve", new Command("Solve the equation. This is used in interactive mode. However, this command is also automatically called after the you are done with interactive mode.", () -> {
-            try {
-                solver = new GaussSeidelMethod(coefficientMatrix, constantTerms, accuracy, shuffleLimit);
-                numberOfIterations = 0;
-                for (Vector newSol: solver.solve(solution)) {
-                    solution = newSol;
-                    ++numberOfIterations;
-                    if (!printIteration) continue;
-                    System.out.printf("Iteration %d:\t%s\n", numberOfIterations, solution.getDataAsString());
-                }
-            } catch (LimitExceededException e) {
-                throw new Exception("Cannot find a permutation for diagonally dominant matrix after " + shuffleLimit + " times shuffling. " +
-                        "You can set the shuffle limit to be higher if you can wait :)))");
+            solver = new GaussSeidelMethod(coefficientMatrix, constantTerms, accuracy);
+            numberOfIterations = 0;
+            for (Vector newSol: solver.solve(solution)) {
+                solution = newSol;
+                ++numberOfIterations;
+                if (!printIteration) continue;
+                System.out.printf("Iteration %d:\t%s\n", numberOfIterations, solution.getDataAsString());
             }
         }));
 

@@ -19,27 +19,22 @@ public class GaussSeidelMethod {
     private int[] shuffleOrder;
     private int[] reverseShuffleOrder;
 
-    public GaussSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms, double accuracy)
-            throws MathException, LimitExceededException
-    {
-        this(coefficients, constantTerms, accuracy, -1);
-    }
-
     public GaussSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms)
-            throws MathException, LimitExceededException
+            throws MathException
     {
-        this(coefficients, constantTerms, MathUtils.EPS, -1);
+        this(coefficients, constantTerms, MathUtils.EPS);
     }
 
-    public GaussSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms, double accuracy, int limitShuffle)
-            throws MathException, LimitExceededException
+    public GaussSeidelMethod(@NotNull Matrix coefficients, @NotNull  Vector constantTerms, double accuracy)
+            throws MathException
     {
         assert(coefficients.getRowCount() == constantTerms.getSize());
         this.coefficients = coefficients.copy();
         this.constantTerms = constantTerms.copy();
         this.accuracy = accuracy;
-        this.shuffleOrder = findShuffleOrder(limitShuffle);
-        if (this.shuffleOrder == null) {
+        this.shuffleOrder = findMaxDiagonalShuffleOrder(coefficients);
+        this.shuffledCoefficients = shuffleWithOrder(coefficients, this.shuffleOrder);
+        if (!this.shuffledCoefficients.isDiagonallyDominant(true)) {
             throw new MathException(
                     "Could not find any permutation of column to make the coefficients matrix diagonally dominant"
             );
@@ -102,23 +97,22 @@ public class GaussSeidelMethod {
         return result;
     }
 
-    private int[] findShuffleOrder(int limit) throws LimitExceededException {
+    private int[] findMaxDiagonalShuffleOrder(Matrix matrix) {
         int[] shuffleOrder = new int[getUnknownCount()];
-        for (int i = 0; i < getUnknownCount(); ++i) {
-            shuffleOrder[i] = i;
+        boolean[] picked = new boolean[getUnknownCount()];
+        for (int r = 0; r < getUnknownCount(); ++r) {
+            int maxColumn = -1;
+            for (int c = 0; c < getUnknownCount(); ++c) {
+                if (picked[c]) continue;
+                if (maxColumn == -1 || Math.abs(matrix.get(r, maxColumn)) < Math.abs(matrix.get(r, c))) {
+                    maxColumn = c;
+                }
+            }
+            assert(maxColumn != -1);
+            picked[maxColumn] = true;
+            shuffleOrder[r] = maxColumn;
         }
-
-        do {
-            shuffledCoefficients = shuffleWithOrder(coefficients, shuffleOrder);
-            if (shuffledCoefficients.isDiagonallyDominant(true)) {
-                return shuffleOrder;
-            }
-            if (limit == 0) {
-                throw new LimitExceededException();
-            }
-            if (limit > 0) --limit;
-        } while (MathUtils.nextPermutation(shuffleOrder));
-        return null;
+        return shuffleOrder;
     }
 
     private int[] getReverseOrder(int[] order) {
